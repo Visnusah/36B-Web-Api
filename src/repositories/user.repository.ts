@@ -2,9 +2,14 @@ import User, { IUser } from "../models/user.model";
 export interface IUserRepository {
     findByUsername(username: string): Promise<IUser | null>;
     findByEmail(email: string): Promise<IUser | null>;
+    // 5 common mandatory methods for any repository
     create(user: IUser): Promise<IUser>;
     findById(id: string): Promise<IUser | null>;
-};
+    findAll(): Promise<IUser[]>;
+    update(id: string, user: Partial<IUser>)
+        : Promise<IUser | null>;
+    delete(id: string): Promise<boolean>;
+}
 export class UserMongoRepository implements IUserRepository {
     async findByUsername(username: string): Promise<IUser | null> {
         const foundUser = await User.findOne({ username: username });
@@ -22,4 +27,4 @@ export class UserMongoRepository implements IUserRepository {
         const foundUser = await User.findById(id);
         return foundUser;
     }
-};
+}
