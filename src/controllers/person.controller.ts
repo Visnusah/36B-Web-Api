@@ -37,6 +37,12 @@ export class PersonController {
     // 2. consistent api response
     // 3. global error handling middleware
     async createPerson(req: Request, res: Response) {
+        if (!req.body || Object.keys(req.body).length === 0) {
+            throw new HttpException(
+                400,
+                "Request body is empty or invalid. Please ensure you are sending a JSON payload and your 'Content-Type' header is set to 'application/json' in Postman."
+            );
+        }
         const parseResult = CreatePersonDTO.safeParse(req.body);
         if(!parseResult.success){
             throw new HttpException(
@@ -52,6 +58,12 @@ export class PersonController {
 
     async updatePerson(req: Request, res: Response) {
     try {
+        if (!req.body || Object.keys(req.body).length === 0) {
+            throw new HttpException(
+                400,
+                "Request body is empty or invalid. Please ensure you are sending a JSON payload and your 'Content-Type' header is set to 'application/json' in Postman."
+            );
+        }
         // Validate request body with UpdatePersonDTO
         const parseResult = UpdatePersonDTO.safeParse(req.body);
         if (!parseResult.success) {

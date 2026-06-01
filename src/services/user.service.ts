@@ -1,8 +1,11 @@
 import { UserMongoRepository } from "../repositories/user.repository";
-import { CreateUserDto } from "../dtos/user.dto";
+import { CreateUserDto, LoginUserDto } from "../dtos/user.dto";
 import { HttpException } from "../exceptions/http-exception";
 import bycrypt from "bcrypt"; // to hash password
 import { IUser } from "../models/user.model";
+// jwt for token generation
+import jwt from "jsonwebtoken";
+import { SECRET_KEY } from "../config/constant";
 
 const userRepository = new UserMongoRepository();
 export class UserService {
@@ -26,5 +29,25 @@ export class UserService {
         };
         const createdUser = await userRepository.create(userToCreate as any);
         return createdUser;
+    }
+
+    async loginUser(loginData: LoginUserDto) {
+        const user = await userRepository.findByEmail(loginData.email);
+        if (!user) {
+            throw new HttpException(400, "Invalid email or password");
+        }
+        const isPasswordValid = await bycrypt.compare(
+            loginData.password,
+            user.password
+        ); // compare hashed password
+        if (!isPasswordValid) {
+            throw new HttpException(400, "Invalid email or password");
+        }
+        const token = jwt.sign(
+            { id: user._id, email: user.email, role: user.role }, // payload
+            SECRET_KEY,
+            { expiresIn: "30d" }
+        );
+        return { user, token };
     }
 }

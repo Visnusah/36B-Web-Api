@@ -27,4 +27,36 @@ export class UserMongoRepository implements IUserRepository {
         const foundUser = await User.findById(id);
         return foundUser;
     }
+    /**
+     * Retrieves all users from the database.
+     * @returns A promise that resolves to an array of IUser objects.
+     */
+    async findAll(): Promise<IUser[]> {
+        const users = await User.find();
+        return users;
+    }
+
+    /**
+     * Updates a user record by its unique identifier.
+     * @param id - The ID of the user to update.
+     * @param user - A partial object containing the updated user fields.
+     * @returns A promise that resolves to the updated IUser object or null if not found.
+     */
+    async update(id: string, user: Partial<IUser>)
+        : Promise<IUser | null> {
+        // { new: true } returns the updated document instead of the original
+        const updatedUser = await User.findByIdAndUpdate(id, user, { new: true });
+        return updatedUser;
+    }
+
+    /**
+     * Deletes a user record by its unique identifier.
+     * @param id - The ID of the user to delete.
+     * @returns A promise that resolves to true if the user was deleted, or false if not found.
+     */
+    async delete(id: string): Promise<boolean> {
+        const deletedUser = await User.findByIdAndDelete(id);
+        // Converts the deleted document (or null) to a boolean value
+        return !!deletedUser; 
+    }
 }
