@@ -6,7 +6,6 @@ import { ApiResponseHelper } from "../utils/api-response";
 import { Request, Response } from "express";
 
 const userService = new UserService();
-``
 export class UserController {
     async createUser(req: Request, res: Response) {
         try{
