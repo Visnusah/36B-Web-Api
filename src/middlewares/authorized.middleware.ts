@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";  
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config/constant";
 import { HttpException } from "../exceptions/http-exception";
@@ -15,28 +15,48 @@ declare global {
         }
     }
 }// for user detail now can be accessed in req.user
-export const authorizedMiddleware = 
+export const authorizedMiddleware =
     async (req: Request, res: Response, next: NextFunction) => {
-        try{
+        try {
             const authHeader = req.headers.authorization;
-            if(!authHeader || !authHeader.startsWith("Bearer "))
+            if (!authHeader || !authHeader.startsWith("Bearer "))
                 throw new HttpException(401, "Authorization header missing or malformed");
             const token = authHeader.split(" ")[1]; // Bearer-> 0, <token>-> 1
-            if(!token)
+            if (!token)
                 throw new HttpException(401, "Token missing");
             const decoded = jwt.verify(token, SECRET_KEY) as Record<string, any>;
-            if(!decoded || !decoded.id)
+            if (!decoded || !decoded.id)
                 throw new HttpException(401, "Invalid token");
             const user = await userRepository.findById(decoded.id);
-            if(!user)
+            if (!user)
                 throw new HttpException(401, "User not found");
             req.user = user; // attach user to request object for downstream use
             return next(); // entry ahead
-        }catch(e: Error | unknown | any){
+        } catch (e: Error | unknown | any) {
             return ApiResponseHelper.error(
-                res, 
-                e?.message || "Unauthorized", 
+                res,
+                e?.message || "Unauthorized",
                 e.status || 401
             );
         }
-}
+    }
+
+export const isAdmin =
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user || !req.user.role) {
+                throw new HttpException(401, "User not found");
+            }
+            // return ApiResponseHelper.error(res, "User not found", 401);
+            if (req.user.role !== "admin") {
+                throw new HttpException(401, "No admin privilage");
+            }
+            return next();
+        } catch (e: Error | unknown | any) {
+            return ApiResponseHelper.error(
+                res,
+                e?.message || "Unauthorized",
+                e.status || 401
+            );
+        }
+    }
