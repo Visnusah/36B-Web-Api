@@ -6,9 +6,14 @@ import { HttpException } from './exceptions/http-exception';
 import { ApiResponseHelper } from './utils/api-response';
 import userRoute from './routes/user.routes';
 import adminRouter from './routes/admin/user.route';
+import cors from 'cors';
 
 const app: Application = express();
-
+let corsOptions = {
+    origin: ['*'], // ["http://localhost/3000, "http://example.com"]
+    optionsSuccessStatus: 200,
+}
+app.use(cors(corsOptions));
 app.use(express.json()); // use json as request
 app.use(express.urlencoded({ extended: true })); // use form-urlencoded as request
 

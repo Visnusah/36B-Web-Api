@@ -21,6 +21,7 @@ export interface PaginationMeta {
 export interface ApiResponse<T> {
     status: number;
     data: T;
+    success: boolean;
     message: string;
     meta?: PaginationMeta;
 }
@@ -36,6 +37,7 @@ export class ApiResponseHelper {
             status,
             data,
             message,
+            success: true,
             meta
         }
         return res.status(status).json(response);
@@ -47,7 +49,8 @@ export class ApiResponseHelper {
     ) {
         const response: Omit<ApiResponse<any>, 'data'> = {
             status,
-            message
+            message,
+            success: false
         }
         return res.status(status).json(response);
     }
